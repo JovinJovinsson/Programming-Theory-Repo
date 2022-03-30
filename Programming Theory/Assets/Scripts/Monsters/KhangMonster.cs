@@ -6,6 +6,17 @@ public class KhangMonster : Monster
 {
     protected override void Attack(GameObject target)
     {
-        Debug.Log("Khang [BITES] " + target.name);
+        // This timer ensure it continues it's idle animation when done attacking
+        StartCoroutine(IdleAnimation());
+        // Play the attack animation
+        gameObject.GetComponent<Animation>().Play("KhangAttack");
+        Debug.Log("Khang [WING BUFFETS] " + target.name);
+    }
+
+    private IEnumerator IdleAnimation()
+    {
+        yield return new WaitForSeconds(1);
+
+        gameObject.GetComponent<Animation>().Play("Idle");
     }
 }
