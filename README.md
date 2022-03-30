@@ -34,15 +34,15 @@ Monster Fighter is an automatic (no user input) realtime-turn based (turns are b
     * Fantasy Bee
     * Mushroom
     * Molten Stone
-  * All Monsters will have ```strength```, ```defense``` and ```speed``` properties
+  * All Monsters will have ```strength```, ```defense```, ```speed``` and ```hitPoints``` properties
   * All Monsters will have a ```isPlayer``` property to determine if when defeated it is game over or next level
 * **Polymorphism**
   * The ```Attack()``` function must be specified in each monster
 * **Encapsulation**
   * The properties mentioned above will be encapsulated to ensure only valid modifications can be made to them
 * **Abstraction**
-  * ```CheckTurn()``` will check when the monsters turn to attack is ready
-  * ```AdjustHitPoints(int change)``` will manage the change in hit points to the monster and trigger a win if defeated
+  * ```CheckTurnTimer()``` will check when the monsters turn to attack is ready
+  * ```CalulateDamageTaken(int otherStrength)``` will calculate the damage taken by comparing the strength of the other monster to this monsters defense
 
 *Note that this brief will change if anything is identified as missing from the criteria above, this is the minimum to have it functional however*
 
