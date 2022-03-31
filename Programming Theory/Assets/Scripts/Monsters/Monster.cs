@@ -33,8 +33,8 @@ public abstract class Monster : MonoBehaviour
         set { attackName = value; }
     }
 
-    // The baseAttackDelay is alwyas 50 for every monster as it is divided by speed to determine attack rate
-    private const int baseAttackDelay = 50;
+    // The baseAttackDelay is alwyas 20 for every monster as it is divided by speed to determine attack rate
+    private const int baseAttackDelay = 20;
     // Store the duration since the last attack to determine whether we should attack again, and to manage the turn timer
     private float timeSinceLastAttack = 0;
     // Attack delay is the minimum time between attacks
@@ -51,27 +51,36 @@ public abstract class Monster : MonoBehaviour
 
     protected virtual void Awake()
     {
-        SetupAttributes();
+        AssignBaseInfo();
+        ApplyUpgrades();
     }
+
+    /// <summary>
+    /// Assigns monster specific base stats to override the default 10's, must be implemented by each child class
+    /// </summary>
+    protected abstract void AssignBaseInfo();
 
     /// <summary>
     /// This applies the manually assigned modifications that the player has made to the stats.
     /// Then it calculates MaxHitPoints and the attackDelay
     /// </summary>
-    private void SetupAttributes()
+    private void ApplyUpgrades()
     {
         Strength += MainManager.Instance.StrengthMod;
         Defense += MainManager.Instance.DefenseMod;
         Speed += MainManager.Instance.SpeedMod;
+        // Derive the max hitpoints from defense
         MaxHitPoints = Defense * 10;
+        // Assign this as the current hitpoints as well
         hitPoints = MaxHitPoints;
+        // Calculate the turn timer delay
         attackDelay = baseAttackDelay / Speed;
     }
 
     private void Update()
     {
         // Check that the level isn't over (win or lose)
-        if (!MainManager.Instance.GameOver)
+        if (MainManager.Instance.GameActive)
         {
             // If we don't currently have a target, get the target
             if (target == null)
@@ -112,8 +121,16 @@ public abstract class Monster : MonoBehaviour
     /// <param name="otherStrength">The strength of the target that initiated the attack</param>
     public void CalculateDamageTaken(Monster attacker)
     {
+        // This acts a storage for how much critical damage to add, but also flags when critical damage is dealt
+        float criticalDamage = 0;
+        // If the random number is under the attacker's speed it's a crit
+        if (Random.Range(1, 101) < attacker.Speed)
+        {
+            // Critical damage is 20% of Speed + Strength
+            criticalDamage = 0.2f * ((float)attacker.Speed + (float)attacker.Strength);
+        }
         // Calculate the damage by comparing the ratio of strength & damage
-        int damage = Mathf.RoundToInt(baseDamage * ((float)attacker.Strength / (float)Defense));
+        int damage = Mathf.RoundToInt(baseDamage * ((((float)attacker.Strength + criticalDamage) / (float)Defense))); ;
 
         // We can't deal negative damage (that will heal)
         if (damage <= 0)
@@ -127,7 +144,7 @@ public abstract class Monster : MonoBehaviour
         healthBar.UpdateFill((float)hitPoints / (float)MaxHitPoints);
 
         // Update the combat log
-        CombatLogger.Instance.UpdateCombatLog(isPlayer, attacker, this, damage);
+        MainManager.Instance.BGController.CombatLog.UpdateCombatLog(isPlayer, attacker, this, damage, criticalDamage);
 
         // Check if the hitPoints are now below 0
         if (hitPoints <= 0)
@@ -144,11 +161,12 @@ public abstract class Monster : MonoBehaviour
     {
         if (isPlayer)
         {
-            Debug.Log("Game Over!");
-            MainManager.Instance.GameOver = true;
+            MainManager.Instance.Victory = 0;
+            MainManager.Instance.GameActive = false;
         } else
         {
-            Debug.Log("Defeated Level!");
+            MainManager.Instance.Victory = 1;
+            MainManager.Instance.GameActive = false;
         }
     }
 

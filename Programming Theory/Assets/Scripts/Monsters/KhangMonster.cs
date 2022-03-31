@@ -4,11 +4,12 @@ using UnityEngine;
 
 public class KhangMonster : Monster
 {
-    protected override void Awake()
+    protected override void AssignBaseInfo()
     {
         AttackName = "wing buffets";
-        Defense = 15;
-        base.Awake();
+        Strength = 12;
+        Defense = 12;
+        Speed = 10;
     }
 
     protected override void Attack()

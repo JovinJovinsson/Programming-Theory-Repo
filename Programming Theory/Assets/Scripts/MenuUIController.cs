@@ -14,6 +14,7 @@ public class MenuUIController : MonoBehaviour
     public void StartGame()
     {
         MainManager.Instance.PlayerName = playerName.text;
+        MainManager.Instance.MonsterLevel = 1;
         SceneManager.LoadScene(1);
     }
 

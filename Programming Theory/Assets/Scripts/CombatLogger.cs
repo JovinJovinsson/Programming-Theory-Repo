@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using System;
 
 public class CombatLogger : MonoBehaviour
 {
@@ -11,22 +12,30 @@ public class CombatLogger : MonoBehaviour
 
     private void Awake()
     {
-        if (Instance == null)
+        /*if (Instance == null)
         {
             Instance = this;
             DontDestroyOnLoad(Instance);
         } else
         {
             Destroy(gameObject);
-        }
+        }*/
     }
 
-    public void UpdateCombatLog(bool isPlayer, Monster attacker, Monster defender, int damage)
+    public void UpdateCombatLog(bool isPlayer, Monster attacker, Monster defender, int damage, float criticalDamage)
     {
+        string timeStamp = $"[{DateTime.Now:HH:mm:ss}]";
         // The second call for AddName inverts isPlayer as it's referring to the defender's player status
-        string newLog = $"{AddName(!isPlayer, attacker.name)} [{attacker.AttackName}] {AddName(isPlayer, defender.name)} for <color=#FF0000>{damage}</color> damage!\n";
+        string newLog = $"{timeStamp} {AddName(!isPlayer, attacker.name)} [{attacker.AttackName}] " +
+            $"{AddName(isPlayer, defender.name)} for <color=#FF0000>{damage}</color>";
+        if (criticalDamage != 0)
+        {
+            newLog += " <color=#FFFF00>CRITICAL</color>";
+        }
+        newLog += " damage!\n";
 
-        combatLog.text += newLog;
+        // Combat log will have most recent entries at the top
+        combatLog.text = newLog + combatLog.text;
     }
 
     /// <summary>

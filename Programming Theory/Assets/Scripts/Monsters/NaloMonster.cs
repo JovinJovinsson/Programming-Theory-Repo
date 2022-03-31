@@ -4,10 +4,11 @@ using UnityEngine;
 
 public class NaloMonster : Monster
 {
-    protected override void Awake()
+    protected override void AssignBaseInfo()
     {
         AttackName = "stings";
-        Speed = 15;
-        base.Awake();
+        Strength = 9;
+        Defense = 10;
+        Speed = 14;
     }
 }

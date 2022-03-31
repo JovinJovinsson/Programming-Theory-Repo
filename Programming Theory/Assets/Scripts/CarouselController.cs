@@ -12,8 +12,11 @@ public class CarouselController : MonoBehaviour
     [SerializeField] private TextMeshProUGUI defenseText;
     [SerializeField] private TextMeshProUGUI speedText;
     [SerializeField] private TextMeshProUGUI hitPointsText;
+    // Pre-defined transform to make sure the monsters are in the right spot
+    [SerializeField] private GameObject monsterTransform;
 
-    
+    private Monster monsterView;
+
     private int activeMonster;
     public int ActiveMonster
     {
@@ -27,14 +30,19 @@ public class CarouselController : MonoBehaviour
         }
     }
 
+    // This sets the speed for the rotation of the monster
+    private const float rotateSpeed = 0.15f;
+
     // Start is called before the first frame update
     void Start()
     {
-        /// TODO: Remove this
-        // Get all of the Monsters in the Carousel
-        //MainManager.Instance.monsters = gameObject.GetComponentsInChildren<Monster>();
         // Set the active monster to a random one
         ActiveMonster = Random.Range(0, MainManager.Instance.monsters.Length);
+    }
+
+    private void Update()
+    {
+        monsterView.transform.Rotate(Vector3.up * rotateSpeed);
     }
 
     /// <summary>
@@ -43,31 +51,37 @@ public class CarouselController : MonoBehaviour
     private void ChangeActiveMonster()
     {
         /// TODO: CHANGE TO INSTANTIATE & DESTROY
-        // Iterate over each Monster in the Carousel
-        for (int i = 0; i < MainManager.Instance.monsters.Length; i++)
+        // Remove the previous Monster (if this isn't the first one we've spawned for the view)
+        if (monsterView != null)
         {
-            // If we're at the monster that should be visible, set it so
-            if (i == activeMonster)
-            {
-                MainManager.Instance.monsters[i].gameObject.SetActive(true);
-            } else
-            {
-                // Otherwise hide the monster
-                MainManager.Instance.monsters[i].gameObject.SetActive(false);
-            }
+            Destroy(monsterView.gameObject);
         }
-        // Set the name as well
-        monsterName.text = MainManager.Instance.monsters[activeMonster].name;
 
+        // Get the monster from the array and position it correctly
+        monsterView = Instantiate(MainManager.Instance.monsters[activeMonster], monsterTransform.transform.position, monsterTransform.transform.rotation);
+        // Scale it accordingly
+        monsterView.transform.localScale = monsterTransform.transform.localScale;
+        // Make it a child of the carousel
+        monsterView.transform.parent = gameObject.transform;
+        // Remove the progress bars
+        foreach (ProgressBar bar in monsterView.GetComponentsInChildren<ProgressBar>())
+        {
+            bar.gameObject.SetActive(false);
+        }
+
+        // Set the name as well
+        monsterName.text = monsterView.name.Replace("(Clone)","");
+
+        // Update the stat block on the right
         UpdateMonsterStats();
     }
 
     private void UpdateMonsterStats()
     {
-        strengthText.text = $"{MainManager.Instance.monsters[activeMonster].Strength}";
-        defenseText.text = $"{MainManager.Instance.monsters[activeMonster].Defense}";
-        speedText.text = $"{MainManager.Instance.monsters[activeMonster].Speed}";
-        hitPointsText.text = $"{MainManager.Instance.monsters[activeMonster].MaxHitPoints}";
+        strengthText.text = $"{monsterView.Strength}";
+        defenseText.text = $"{monsterView.Defense}";
+        speedText.text = $"{monsterView.Speed}";
+        hitPointsText.text = $"{monsterView.MaxHitPoints}";
     }
 
     /// <summary>
