@@ -23,50 +23,80 @@ public abstract class Monster : MonoBehaviour
         get { return speed; }
         set { speed = value; }
     }
-    private int hitPoints = 100;
+    protected int maxHitPoints = 100;
+    private int hitPoints;
+
+    private string attackName;
+    public string AttackName
+    {
+        get { return attackName; }
+        set { attackName = value; }
+    }
 
     // The baseAttackDelay is alwyas 50 for every monster as it is divided by speed to determine attack rate
     private const int baseAttackDelay = 50;
+    // Store the duration since the last attack to determine whether we should attack again, and to manage the turn timer
+    private float timeSinceLastAttack = 0;
+    // Attack delay is the minimum time between attacks
+    private float attackDelay;
     // The baseDamage is 5 and is modified based on the difference of strength & damage for attacks
     private const int baseDamage = 10;
     // This is a boolean that lets us know if it is the player or not
     public bool isPlayer = false;
     // Storage for the target for attack
-    private GameObject target;
+    private Monster target;
+
+    [SerializeField] ProgressBar healthBar;
+    [SerializeField] ProgressBar turnTimer;
 
     protected virtual void Awake()
     {
+        hitPoints = maxHitPoints;
+        attackDelay = baseAttackDelay / Speed;
         target = GetTarget();
-        StartCoroutine(TurnTimer());
     }
 
-    /// <summary>
-    /// Waits for the calculated time based on the attack delay & speed of the monster.
-    /// Then triggers an attack and the next wait for attack
-    /// </summary>
-    /// <returns></returns>
-    private IEnumerator TurnTimer()
+    private void Update()
     {
-        yield return new WaitForSeconds(baseAttackDelay / Speed);
-
-        Attack(target);
-        StartCoroutine(TurnTimer());
+        // Check that the level isn't over (win or lose)
+        if (!MainManager.Instance.isGameOver)
+        {
+            // Previously used a Coroutine to manage attack time, but we need update to be able to visualise the turn timer
+            // Check if enough time has passed since last attack
+            if (timeSinceLastAttack >= attackDelay)
+            {
+                // It has, so reset the last time we attacked
+                timeSinceLastAttack = 0;
+                // Trigger the attack
+                Attack();
+            }
+            else
+            {
+                // Increment the time since last attacked as we haven't reached the delay yet
+                timeSinceLastAttack += Time.deltaTime;
+            }
+            // Update how full the turn timer is
+            turnTimer.UpdateFill(timeSinceLastAttack / attackDelay);
+        }
     }
 
     /// <summary>
     /// The Attack() function is required by every monster, however is also unique to every monster
     /// </summary>
-    protected abstract void Attack(GameObject target);
+    protected virtual void Attack()
+    {
+        target.CalculateDamageTaken(this);
+    }
 
     /// <summary>
     /// Calculates the damage taken by this monster by comparing the other monsters strength with this monsters defense.
     /// Applies the damage taken after calculation.
     /// </summary>
     /// <param name="otherStrength">The strength of the target that initiated the attack</param>
-    public void CalculateDamageTaken(int otherStrength)
+    public void CalculateDamageTaken(Monster attacker)
     {
         // Calculate the damage by comparing the ratio of strength & damage
-        int damage = Mathf.RoundToInt(baseDamage * (otherStrength / Defense));
+        int damage = Mathf.RoundToInt(baseDamage * (attacker.Strength / Defense));
 
         // We can't deal negative damage (that will heal)
         if (damage <= 0)
@@ -75,6 +105,12 @@ public abstract class Monster : MonoBehaviour
         }
         // Subtract the damage dealt
         hitPoints -= damage;
+
+        // Update the Health Bar fill
+        healthBar.UpdateFill((float)hitPoints / (float)maxHitPoints);
+
+        // Update the combat log
+        CombatLogger.Instance.UpdateCombatLog(isPlayer, attacker, this, damage);
 
         // Check if the hitPoints are now below 0
         if (hitPoints <= 0)
@@ -92,13 +128,14 @@ public abstract class Monster : MonoBehaviour
         if (isPlayer)
         {
             Debug.Log("Game Over!");
+            MainManager.Instance.isGameOver = true;
         } else
         {
             Debug.Log("Defeated Level!");
         }
     }
 
-    private GameObject GetTarget()
+    private Monster GetTarget()
     {
         // This is the string to search for to find the target container
         string targetName = "PlayerContainer";
@@ -110,7 +147,7 @@ public abstract class Monster : MonoBehaviour
         // Find the target container
         GameObject targetContainer = GameObject.Find(targetName);
         // There will only be a single target in this version of the game (might enhance later)
-        GameObject target = targetContainer.transform.GetChild(0).gameObject;
+        Monster target = targetContainer.transform.GetChild(0).gameObject.GetComponent<Monster>();
 
         return target;
     }
