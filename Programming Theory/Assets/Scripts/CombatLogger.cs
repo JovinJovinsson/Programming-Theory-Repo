@@ -10,18 +10,6 @@ public class CombatLogger : MonoBehaviour
 
     [SerializeField] TextMeshProUGUI combatLog;
 
-    private void Awake()
-    {
-        /*if (Instance == null)
-        {
-            Instance = this;
-            DontDestroyOnLoad(Instance);
-        } else
-        {
-            Destroy(gameObject);
-        }*/
-    }
-
     public void UpdateCombatLog(bool isPlayer, Monster attacker, Monster defender, int damage, float criticalDamage)
     {
         string timeStamp = $"[{DateTime.Now:HH:mm:ss}]";

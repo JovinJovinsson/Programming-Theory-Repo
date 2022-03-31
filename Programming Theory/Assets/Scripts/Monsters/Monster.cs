@@ -5,24 +5,9 @@ using UnityEngine;
 public abstract class Monster : MonoBehaviour
 {
     // Base Monster Stats
-    private int strength = 10;
-    public int Strength
-    {
-        get { return strength; }
-        set { strength = value; }
-    }
-    private int defense = 10;
-    public int Defense
-    {
-        get { return defense; }
-        set { defense = value; }
-    }
-    private int speed = 10;
-    public int Speed
-    {
-        get { return speed; }
-        set { speed = value; }
-    }
+    public virtual int Strength { get; set; }
+    public virtual int Defense { get; set; }
+    public virtual int Speed { get; set; }
     public int MaxHitPoints { get; private set; }
     private int hitPoints;
 

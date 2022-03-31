@@ -174,6 +174,8 @@ public class BattlegroundController : MonoBehaviour
             // Change the text colour to red
             result.color = Color.red;
 
+            MainManager.Instance.UpdateHighScores();
+
             // Display the button to go to the high scores screen
             highScoresButton.SetActive(true);
         }
@@ -194,6 +196,7 @@ public class BattlegroundController : MonoBehaviour
 
     public void HighScores()
     {
-
+        // Load the high score screen
+        SceneManager.LoadScene(2);
     }
 }
