@@ -23,7 +23,7 @@ public abstract class Monster : MonoBehaviour
         get { return speed; }
         set { speed = value; }
     }
-    protected int maxHitPoints = 100;
+    public int MaxHitPoints { get; private set; }
     private int hitPoints;
 
     private string attackName;
@@ -51,16 +51,33 @@ public abstract class Monster : MonoBehaviour
 
     protected virtual void Awake()
     {
-        hitPoints = maxHitPoints;
+        SetupAttributes();
+    }
+
+    /// <summary>
+    /// This applies the manually assigned modifications that the player has made to the stats.
+    /// Then it calculates MaxHitPoints and the attackDelay
+    /// </summary>
+    private void SetupAttributes()
+    {
+        Strength += MainManager.Instance.StrengthMod;
+        Defense += MainManager.Instance.DefenseMod;
+        Speed += MainManager.Instance.SpeedMod;
+        MaxHitPoints = Defense * 10;
+        hitPoints = MaxHitPoints;
         attackDelay = baseAttackDelay / Speed;
-        target = GetTarget();
     }
 
     private void Update()
     {
         // Check that the level isn't over (win or lose)
-        if (!MainManager.Instance.isGameOver)
+        if (!MainManager.Instance.GameOver)
         {
+            // If we don't currently have a target, get the target
+            if (target == null)
+            {
+                target = GetTarget();
+            }
             // Previously used a Coroutine to manage attack time, but we need update to be able to visualise the turn timer
             // Check if enough time has passed since last attack
             if (timeSinceLastAttack >= attackDelay)
@@ -96,7 +113,7 @@ public abstract class Monster : MonoBehaviour
     public void CalculateDamageTaken(Monster attacker)
     {
         // Calculate the damage by comparing the ratio of strength & damage
-        int damage = Mathf.RoundToInt(baseDamage * (attacker.Strength / Defense));
+        int damage = Mathf.RoundToInt(baseDamage * ((float)attacker.Strength / (float)Defense));
 
         // We can't deal negative damage (that will heal)
         if (damage <= 0)
@@ -107,7 +124,7 @@ public abstract class Monster : MonoBehaviour
         hitPoints -= damage;
 
         // Update the Health Bar fill
-        healthBar.UpdateFill((float)hitPoints / (float)maxHitPoints);
+        healthBar.UpdateFill((float)hitPoints / (float)MaxHitPoints);
 
         // Update the combat log
         CombatLogger.Instance.UpdateCombatLog(isPlayer, attacker, this, damage);
@@ -128,7 +145,7 @@ public abstract class Monster : MonoBehaviour
         if (isPlayer)
         {
             Debug.Log("Game Over!");
-            MainManager.Instance.isGameOver = true;
+            MainManager.Instance.GameOver = true;
         } else
         {
             Debug.Log("Defeated Level!");
@@ -146,9 +163,17 @@ public abstract class Monster : MonoBehaviour
         }
         // Find the target container
         GameObject targetContainer = GameObject.Find(targetName);
-        // There will only be a single target in this version of the game (might enhance later)
-        Monster target = targetContainer.transform.GetChild(0).gameObject.GetComponent<Monster>();
 
-        return target;
+        if (targetContainer != null)
+        {
+            // There will only be a single target in this version of the game (might enhance later)
+            Monster target = targetContainer.transform.GetChild(0).gameObject.GetComponent<Monster>();
+
+            return target;
+        } else
+        {
+            // If we got here we couldn't find containers
+            return null;
+        }
     }
 }

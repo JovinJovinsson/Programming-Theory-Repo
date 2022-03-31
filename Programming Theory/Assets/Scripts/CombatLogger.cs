@@ -24,7 +24,7 @@ public class CombatLogger : MonoBehaviour
     public void UpdateCombatLog(bool isPlayer, Monster attacker, Monster defender, int damage)
     {
         // The second call for AddName inverts isPlayer as it's referring to the defender's player status
-        string newLog = $"{AddName(isPlayer, attacker.name)} [{attacker.AttackName}] {AddName(!isPlayer, defender.name)} for <color=#FF0000>{damage}</color> damage!\n";
+        string newLog = $"{AddName(!isPlayer, attacker.name)} [{attacker.AttackName}] {AddName(isPlayer, defender.name)} for <color=#FF0000>{damage}</color> damage!\n";
 
         combatLog.text += newLog;
     }
@@ -40,7 +40,7 @@ public class CombatLogger : MonoBehaviour
         string nameString = "<color=";
         if (isPlayer)
         {
-            nameString += "#000099>Player ";
+            nameString += "#000099>" + MainManager.Instance.PlayerName + "'s ";
         } else
         {
             nameString += "#990000>Enemy ";

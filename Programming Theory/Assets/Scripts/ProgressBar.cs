@@ -8,14 +8,16 @@ public class ProgressBar : MonoBehaviour
     
     private void Awake()
     {
-        AlignCamera();
+        StartCoroutine(AlignCamera());
     }
 
     /// <summary>
     /// Ensure the HealthBar is always looking at the camera
     /// </summary>
-    private void AlignCamera()
+    private IEnumerator AlignCamera()
     {
+        yield return new WaitForSeconds(0.01f);
+
         // Just to ensure no errors are produced, make sure the camera is valid
         if (Camera.main != null)
         {

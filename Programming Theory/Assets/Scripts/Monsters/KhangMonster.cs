@@ -7,7 +7,7 @@ public class KhangMonster : Monster
     protected override void Awake()
     {
         AttackName = "wing buffets";
-        maxHitPoints = 150;
+        Defense = 15;
         base.Awake();
     }
 
