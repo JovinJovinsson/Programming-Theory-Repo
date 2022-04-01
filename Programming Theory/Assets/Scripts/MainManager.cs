@@ -126,6 +126,9 @@ public class MainManager : MonoBehaviour
         SaveHighScores();
     }
 
+    /// <summary>
+    /// HighScores is the data structure used to store the previous winning score
+    /// </summary>
     [System.Serializable]
     public class HighScores
     {
@@ -138,78 +141,47 @@ public class MainManager : MonoBehaviour
         public int speed;
     }
 
+    /// <summary>
+    /// The ScoreCollection type is a wrapper for an array of HighScore data types
+    /// </summary>
     [System.Serializable]
-    public class ScoreList
+    public class ScoreCollection
     {
-        public string one;
-        public string two;
-        public string three;
-        public string four;
-        public string five;
+        public HighScores[] scores;
     }
     /// <summary>
     /// This function saves the highscores in JSON
     /// </summary>
     public void SaveHighScores()
     {
-        /// TODO: Find out how to do this in a less dirty mannner....
-        ScoreList scoreList = new ScoreList();
-
-        if (Scores.Count > 0)
-        {
-            scoreList.one = JsonUtility.ToJson(Scores[0]);
-        }
-        if (Scores.Count > 1)
-        {
-            scoreList.two = JsonUtility.ToJson(Scores[1]);
-        }
-        if (Scores.Count > 2)
-        {
-            scoreList.three = JsonUtility.ToJson(Scores[2]);
-        }
-        if (Scores.Count > 3)
-        {
-            scoreList.four = JsonUtility.ToJson(Scores[3]);
-        }
-        if (Scores.Count > 4)
-        {
-            scoreList.five = JsonUtility.ToJson(Scores[4]);
-        }
-
+        // Create the array wrapper object
+        ScoreCollection scoreList = new ScoreCollection();
+        // Store the list of High Scores
+        scoreList.scores = Scores.ToArray();
+        // JSONify it
         string json = JsonUtility.ToJson(scoreList);
-
+        // Store it
         File.WriteAllText(Application.persistentDataPath + "/highscores.json", json);
     }
 
+    /// <summary>
+    /// This function loads the previous high scores from JSON
+    /// </summary>
     public void LoadHighScores()
     {
+        // Store the path as we use it at least twice in this function
         string path = Application.persistentDataPath + "/highscores.json";
-
+        // If the file exists let's load the scores
         if (File.Exists(path))
         {
+            // Read the JSON data from the file
             string json = File.ReadAllText(path);
-
-            ScoreList scoreList = JsonUtility.FromJson<ScoreList>(json);
-
-            if (scoreList.one != "")
+            // Parse the string into the Wrapper Object of ScoreCollection
+            ScoreCollection scoreList = JsonUtility.FromJson<ScoreCollection>(json);
+            // Iterate over each score and add to the High Scores List
+            foreach (HighScores score in scoreList.scores)
             {
-                Scores.Add(JsonUtility.FromJson<HighScores>(scoreList.one));
-            }
-            if (scoreList.two != "")
-            {
-                Scores.Add(JsonUtility.FromJson<HighScores>(scoreList.two));
-            }
-            if (scoreList.three != "")
-            {
-                Scores.Add(JsonUtility.FromJson<HighScores>(scoreList.three));
-            }
-            if (scoreList.four != "")
-            {
-                Scores.Add(JsonUtility.FromJson<HighScores>(scoreList.four));
-            }
-            if (scoreList.five != "")
-            {
-                Scores.Add(JsonUtility.FromJson<HighScores>(scoreList.five));
+                Scores.Add(score);
             }
         }
     }

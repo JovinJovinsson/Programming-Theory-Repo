@@ -34,6 +34,7 @@ public class MenuUIController : MonoBehaviour
     /// </summary>
     public void ViewHighScores()
     {
+        MainManager.Instance.SaveHighScores();
         SceneManager.LoadScene(2);
     }
 
