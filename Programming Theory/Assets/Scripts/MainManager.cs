@@ -17,7 +17,7 @@ public class MainManager : MonoBehaviour
     }
 
     // The array of monsters in the carousel along with the active index
-    public Monster[] monsters = new Monster[2];
+    public Monster[] monsters = new Monster[5];
 
     // Current Round
     public int CurrentRound { get; set; }
@@ -55,7 +55,7 @@ public class MainManager : MonoBehaviour
     public int MonsterExp { get; set; }
     public int UnspentPoints { get; set; }
 
-    [SerializeField] public List<HighScores> Scores = new List<HighScores>();
+    public List<HighScores> Scores = new List<HighScores>();
 
     private void Awake()
     {

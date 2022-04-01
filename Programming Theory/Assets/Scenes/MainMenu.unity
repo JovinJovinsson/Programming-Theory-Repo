@@ -4839,7 +4839,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5366008848026200558, guid: 3b22eb756983402429f2b463021b3f34, type: 3}
       propertyPath: monsters.Array.size
-      value: 2
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 5366008848026200558, guid: 3b22eb756983402429f2b463021b3f34, type: 3}
       propertyPath: monsters.Array.data[0]
@@ -4849,6 +4849,18 @@ PrefabInstance:
       propertyPath: monsters.Array.data[1]
       value: 
       objectReference: {fileID: 3335658482351272181, guid: 03145a99b73b49848baf2d976e9a5a16, type: 3}
+    - target: {fileID: 5366008848026200558, guid: 3b22eb756983402429f2b463021b3f34, type: 3}
+      propertyPath: monsters.Array.data[2]
+      value: 
+      objectReference: {fileID: 2541237284158853843, guid: a4578a18b535add4a993ad976c57e90d, type: 3}
+    - target: {fileID: 5366008848026200558, guid: 3b22eb756983402429f2b463021b3f34, type: 3}
+      propertyPath: monsters.Array.data[3]
+      value: 
+      objectReference: {fileID: 1632513660127321800, guid: 385daaf5a670a964b9d5e4f7f8bb6f83, type: 3}
+    - target: {fileID: 5366008848026200558, guid: 3b22eb756983402429f2b463021b3f34, type: 3}
+      propertyPath: monsters.Array.data[4]
+      value: 
+      objectReference: {fileID: 7576902818521902279, guid: d87c88b8109d5e140ab8107f8175f1d9, type: 3}
     - target: {fileID: 5366008848026200559, guid: 3b22eb756983402429f2b463021b3f34, type: 3}
       propertyPath: m_Name
       value: MainManager
