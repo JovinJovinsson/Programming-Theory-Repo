@@ -25,8 +25,7 @@ public class MenuUIController : MonoBehaviour
         {
             MainManager.Instance.PlayerName = "Emanon";
         }
-        MainManager.Instance.MonsterLevel = 1;
-        SceneManager.LoadScene(1);
+        SceneManager.LoadScene(3);
     }
 
     /// <summary>

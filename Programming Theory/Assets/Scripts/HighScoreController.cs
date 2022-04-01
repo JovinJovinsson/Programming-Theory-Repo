@@ -45,6 +45,9 @@ public class HighScoreController : MonoBehaviour
     /// </summary>
     public void BackToMenu()
     {
+        // Resets everything
+        Destroy(MainManager.Instance.gameObject);
+        
         SceneManager.LoadScene(0);
     }
 }

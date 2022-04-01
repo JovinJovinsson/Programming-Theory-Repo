@@ -2,19 +2,25 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+// INHERITANCE - All Monsters
 public class NaloMonster : Monster
 {
-    public override int Strength
+    // POLYMORPHISM - All Monsters
+    public override int BaseStrength
     {
-        get { return 9 + MainManager.Instance.StrengthMod; }
+        get { return 9; }
     }
-    public override int Defense
+    public override int BaseDefense
     {
-        get { return 10 + MainManager.Instance.DefenseMod; }
+        get { return 10; }
     }
-    public override int Speed
+    public override int BaseSpeed
     {
-        get { return 14 + MainManager.Instance.SpeedMod; }
+        get { return 14; }
+    }
+    public override float AttackDelay
+    {
+        get { return (float)baseAttackDelay / (float)Speed(isPlayer); }
     }
 
     protected override void AssignBaseInfo()

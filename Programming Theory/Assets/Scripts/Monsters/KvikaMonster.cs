@@ -4,17 +4,21 @@ using UnityEngine;
 
 public class KvikaMonster : Monster
 {
-    public override int Strength
+    public override int BaseStrength
     {
-        get { return 10 + MainManager.Instance.StrengthMod; }
+        get { return 10; }
     }
-    public override int Defense
+    public override int BaseDefense
     {
-        get { return 14 + MainManager.Instance.DefenseMod; }
+        get { return 14; }
     }
-    public override int Speed
+    public override int BaseSpeed
     {
-        get { return 9 + MainManager.Instance.SpeedMod; }
+        get { return 9; }
+    }
+    public override float AttackDelay
+    {
+        get { return (float)baseAttackDelay / (float)Speed(isPlayer); }
     }
     protected override void AssignBaseInfo()
     {

@@ -50,6 +50,21 @@ public class BattlegroundController : MonoBehaviour
         StartCoroutine(BeginCountdown());
     }
 
+    [SerializeField] private TextMeshProUGUI debugText;
+    private void StatsDebug()
+    {
+        Monster player = playerContainer.GetComponentInChildren<Monster>();
+        Monster enemy = enemyContainer.GetComponentInChildren<Monster>();
+        string stats = $"Player ({player.isPlayer}, {player.name}):\nStrength: {player.Strength(player.isPlayer)} ({player.BaseStrength})\n" +
+            $"Defense: {player.Defense(player.isPlayer)} ({player.BaseDefense})\nSpeed: {player.Speed(player.isPlayer)} ({player.BaseSpeed})\n" +
+            $"Attack Delay: {player.AttackDelay}\n\n";
+        stats += $"Enemy ({enemy.isPlayer}, {enemy.name}):\nStrength: {enemy.Strength(enemy.isPlayer)} ({enemy.BaseStrength})\n" +
+            $"Defense: {enemy.Defense(enemy.isPlayer)} ({enemy.BaseDefense})\nSpeed: {enemy.Speed(enemy.isPlayer)} ({enemy.BaseSpeed})\n" +
+            $"Attack Delay: {enemy.AttackDelay}\n\n";
+
+        debugText.text = stats;
+    }
+
     /// <summary>
     /// Initiates a countdown till combat begins and then sets GameOver to false to start combat.
     /// Also controls the visual of combat.
@@ -71,6 +86,7 @@ public class BattlegroundController : MonoBehaviour
                 case 4: SpawnPlayer(); break;
                 case 3: vs.GetComponent<TextMeshProUGUI>().enabled = true; break;
                 case 2: SpawnEnemy(); break;
+                case 1: /*StatsDebug();*/ break;
                 case 0:
                     {
                         MainManager.Instance.GameActive = true;
@@ -102,6 +118,8 @@ public class BattlegroundController : MonoBehaviour
         Monster enemy = Instantiate(MainManager.Instance.monsters[selectedEnemy], enemyContainer.transform.position, enemyContainer.transform.rotation);
         // Correct the enemy name
         enemy.name = enemy.name.Replace("(Clone)", "");
+        // Set isPlayer to false
+        enemy.isPlayer = false;
         // Make it sit inside the container for targeting
         enemy.transform.parent = enemyContainer.transform;
 
@@ -150,6 +168,16 @@ public class BattlegroundController : MonoBehaviour
             MainManager.Instance.MonsterExp += 10;
             // Show the exp/level up text
             experience.GetComponent<TextMeshProUGUI>().enabled = true;
+
+            // Make the next monster harder
+            switch(Random.Range(0,3))
+            {
+                case 0: MainManager.Instance.EnemyStrMod++; break;
+                case 1: MainManager.Instance.EnemyDefMod++; break;
+                case 2: MainManager.Instance.EnemySpdMod++; break;
+                default: break;
+            }
+
             // Check if we have enough exp to level up
             if (MainManager.Instance.MonsterExp < ((MainManager.Instance.MonsterLevel + 1) * 10))
             {
@@ -191,11 +219,17 @@ public class BattlegroundController : MonoBehaviour
 
     public void LevelUp()
     {
-
+        // Reset the victory trigger to the invalid value
+        MainManager.Instance.Victory = -1;
+        // Load the level up scene
+        SceneManager.LoadScene(3);
     }
 
     public void HighScores()
     {
+        // Reset user stuff
+        //MainManager.Instance.ResetStatistics();
+
         // Load the high score screen
         SceneManager.LoadScene(2);
     }

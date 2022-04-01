@@ -55,7 +55,14 @@ public class MainManager : MonoBehaviour
     public int MonsterExp { get; set; }
     public int UnspentPoints { get; set; }
 
+    // Enemy Increases
+    public int EnemyStrMod { get; set; }
+    public int EnemyDefMod { get; set; }
+    public int EnemySpdMod { get; set; }
+
     public List<HighScores> Scores = new List<HighScores>();
+
+    public int PreviousSceneID { get; set; }
 
     private void Awake()
     {
@@ -77,6 +84,21 @@ public class MainManager : MonoBehaviour
         SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
+    /// <summary>
+    /// Resets the user information for next run through
+    /// </summary>
+    public void ResetStatistics()
+    {
+        PlayerName = "";
+        CurrentRound = 0;
+        SelectedMonster = 0;
+        MonsterLevel = 0;
+        StrengthMod = 0;
+        DefenseMod = 0;
+        SpeedMod = 0;
+        UnspentPoints = 0;
+    }
+
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         // If we're in the Battlegound Controller, make a reference to it
@@ -95,9 +117,9 @@ public class MainManager : MonoBehaviour
         newScore.monsterID = SelectedMonster;
         newScore.monsterLevel = MonsterLevel;
         // The score will only track the raw data to reduce amount of math when rendering them
-        newScore.strength = monsters[SelectedMonster].Strength;
-        newScore.defense = monsters[SelectedMonster].Defense;
-        newScore.speed = monsters[SelectedMonster].Speed;
+        newScore.strength = monsters[SelectedMonster].Strength(true);
+        newScore.defense = monsters[SelectedMonster].Defense(true);
+        newScore.speed = monsters[SelectedMonster].Speed(true);
 
         if (Scores.Count == 0)
         {
@@ -105,6 +127,7 @@ public class MainManager : MonoBehaviour
             Scores.Add(newScore);
         } else
         {
+            bool inserted = false;
             // Iterate over all of the high scores to check if we beat them
             for (int i = 0; i < Scores.Count; i++)
             {
@@ -112,7 +135,15 @@ public class MainManager : MonoBehaviour
                 {
                     // We beat it! So lets store this one at the index
                     Scores.Insert(i, newScore);
+                    inserted = true;
+                    break;
                 }
+            }
+
+            // We didn't beat any of the previous scores
+            if (!inserted)
+            {
+                Scores.Add(newScore);
             }
         }
 

@@ -5,9 +5,10 @@ using UnityEngine;
 public abstract class Monster : MonoBehaviour
 {
     // Base Monster Stats
-    public virtual int Strength { get; set; }
-    public virtual int Defense { get; set; }
-    public virtual int Speed { get; set; }
+    // ENCAPSULATION
+    public virtual int BaseStrength { get; set; }
+    public virtual int BaseDefense { get; set; }
+    public virtual int BaseSpeed { get; set; }
     public int MaxHitPoints { get; private set; }
     private int hitPoints;
 
@@ -19,11 +20,11 @@ public abstract class Monster : MonoBehaviour
     }
 
     // The baseAttackDelay is alwyas 20 for every monster as it is divided by speed to determine attack rate
-    private const int baseAttackDelay = 20;
+    protected const int baseAttackDelay = 20;
     // Store the duration since the last attack to determine whether we should attack again, and to manage the turn timer
     private float timeSinceLastAttack = 0;
     // Attack delay is the minimum time between attacks
-    private float attackDelay;
+    public abstract float AttackDelay { get; }
     // The baseDamage is 5 and is modified based on the difference of strength & damage for attacks
     private const int baseDamage = 10;
     // This is a boolean that lets us know if it is the player or not
@@ -41,6 +42,56 @@ public abstract class Monster : MonoBehaviour
     }
 
     /// <summary>
+    /// Provides the adjusted monster strength
+    /// </summary>
+    /// <param name="isPlayer"></param>
+    /// <returns></returns>
+    public int Strength(bool isPlayer = false)
+    {
+        if (isPlayer)
+        {
+            return BaseStrength + MainManager.Instance.StrengthMod;
+        } else
+        {
+            return BaseStrength + MainManager.Instance.EnemyStrMod;
+        }
+    }
+
+    /// <summary>
+    /// Provides the adjusted monster defense
+    /// </summary>
+    /// <param name="isPlayer"></param>
+    /// <returns></returns>
+    public int Defense(bool isPlayer = false)
+    {
+        if (isPlayer)
+        {
+            return BaseDefense + MainManager.Instance.DefenseMod;
+        }
+        else
+        {
+            return BaseDefense + MainManager.Instance.EnemyDefMod;
+        }
+    }
+
+    /// <summary>
+    /// Provides the adjusted monster speed
+    /// </summary>
+    /// <param name="isPlayer"></param>
+    /// <returns></returns>
+    public int Speed(bool isPlayer = false)
+    {
+        if (isPlayer)
+        {
+            return BaseSpeed + MainManager.Instance.SpeedMod;
+        }
+        else
+        {
+            return BaseSpeed + MainManager.Instance.EnemySpdMod;
+        }
+    }
+
+    /// <summary>
     /// Assigns monster specific base stats to override the default 10's, must be implemented by each child class
     /// </summary>
     protected abstract void AssignBaseInfo();
@@ -51,15 +102,10 @@ public abstract class Monster : MonoBehaviour
     /// </summary>
     private void ApplyUpgrades()
     {
-        Strength += MainManager.Instance.StrengthMod;
-        Defense += MainManager.Instance.DefenseMod;
-        Speed += MainManager.Instance.SpeedMod;
         // Derive the max hitpoints from defense
-        MaxHitPoints = Defense * 10;
+        MaxHitPoints = Defense(isPlayer) * 10;
         // Assign this as the current hitpoints as well
         hitPoints = MaxHitPoints;
-        // Calculate the turn timer delay
-        attackDelay = baseAttackDelay / Speed;
     }
 
     private void Update()
@@ -74,7 +120,7 @@ public abstract class Monster : MonoBehaviour
             }
             // Previously used a Coroutine to manage attack time, but we need update to be able to visualise the turn timer
             // Check if enough time has passed since last attack
-            if (timeSinceLastAttack >= attackDelay)
+            if (timeSinceLastAttack >= AttackDelay)
             {
                 // It has, so reset the last time we attacked
                 timeSinceLastAttack = 0;
@@ -87,7 +133,7 @@ public abstract class Monster : MonoBehaviour
                 timeSinceLastAttack += Time.deltaTime;
             }
             // Update how full the turn timer is
-            turnTimer.UpdateFill(timeSinceLastAttack / attackDelay);
+            turnTimer.UpdateFill(timeSinceLastAttack / AttackDelay);
         }
     }
 
@@ -108,14 +154,14 @@ public abstract class Monster : MonoBehaviour
     {
         // This acts a storage for how much critical damage to add, but also flags when critical damage is dealt
         float criticalDamage = 0;
-        // If the random number is under the attacker's speed it's a crit
-        if (Random.Range(1, 101) < attacker.Speed)
+        // If the random number is under the crit chance of 10 + (Speed * 0.1)
+        if (Random.Range(0, 100) < (10 + (0.2 * attacker.Speed(attacker.isPlayer))))
         {
             // Critical damage is 20% of Speed + Strength
-            criticalDamage = 0.2f * ((float)attacker.Speed + (float)attacker.Strength);
+            criticalDamage = 0.2f * ((float)attacker.Speed(attacker.isPlayer) + (float)attacker.Strength(attacker.isPlayer));
         }
         // Calculate the damage by comparing the ratio of strength & damage
-        int damage = Mathf.RoundToInt(baseDamage * ((((float)attacker.Strength + criticalDamage) / (float)Defense))); ;
+        int damage = Mathf.RoundToInt(baseDamage * ((((float)attacker.Strength(attacker.isPlayer) + criticalDamage) / (float)Defense(isPlayer)))); ;
 
         // We can't deal negative damage (that will heal)
         if (damage <= 0)

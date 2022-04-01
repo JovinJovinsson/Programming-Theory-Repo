@@ -78,9 +78,9 @@ public class CarouselController : MonoBehaviour
 
     private void UpdateMonsterStats()
     {
-        strengthText.text = $"{monsterView.Strength}";
-        defenseText.text = $"{monsterView.Defense}";
-        speedText.text = $"{monsterView.Speed}";
+        strengthText.text = $"{monsterView.BaseStrength}";
+        defenseText.text = $"{monsterView.BaseDefense}";
+        speedText.text = $"{monsterView.BaseSpeed}";
         hitPointsText.text = $"{monsterView.MaxHitPoints}";
     }
 
